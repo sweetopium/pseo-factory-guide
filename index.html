@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Гид Фабрики страниц</title>
+<style>
+  :root {
+    --bg: #f6f4ee;
+    --surface: #ffffff;
+    --surface-alt: #efece2;
+    --border: #ddd7c6;
+    --border-strong: #c4bca4;
+    --text: #211f1a;
+    --text-muted: #6c6656;
+    --accent: #0f6d63;
+    --accent-strong: #0a4e47;
+    --accent-soft: #e2efec;
+    --tip-bg: #eaf5f0;
+    --tip-border: #bfe0d1;
+    --tip-text: #146c4f;
+    --warn-bg: #fdf3df;
+    --warn-border: #ecd9a3;
+    --warn-text: #8a5a09;
+    --danger-bg: #fdecef;
+    --danger-border: #f3c1cc;
+    --danger-text: #b3123a;
+    --standalone-bg: #f1edfb;
+    --standalone-border: #ddd0f7;
+    --standalone-text: #6d3fd1;
+    --chip-bg: #efece2;
+    --chip-border: #d7d0ba;
+    --chip-text: #3a3626;
+    --shadow: 0 1px 2px rgba(30, 26, 14, 0.05), 0 10px 28px -14px rgba(30, 26, 14, 0.18);
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14171a;
+      --surface: #1b1f22;
+      --surface-alt: #20252a;
+      --border: #2c333a;
+      --border-strong: #3d4750;
+      --text: #eceeec;
+      --text-muted: #9aa3a6;
+      --accent: #3fc0ae;
+      --accent-strong: #82e0d1;
+      --accent-soft: #163330;
+      --tip-bg: #122a22;
+      --tip-border: #1f5240;
+      --tip-text: #74e3bb;
+      --warn-bg: #2b2410;
+      --warn-border: #4d3c14;
+      --warn-text: #fbbf24;
+      --danger-bg: #2c1620;
+      --danger-border: #5a2333;
+      --danger-text: #fb7185;
+      --standalone-bg: #241f3a;
+      --standalone-border: #362d54;
+      --standalone-text: #b9a4f5;
+      --chip-bg: #20252a;
+      --chip-border: #363e45;
+      --chip-text: #cfd6d2;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px -14px rgba(0, 0, 0, 0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1b1f22;
+    --surface-alt: #20252a;
+    --border: #2c333a;
+    --border-strong: #3d4750;
+    --text: #eceeec;
+    --text-muted: #9aa3a6;
+    --accent: #3fc0ae;
+    --accent-strong: #82e0d1;
+    --accent-soft: #163330;
+    --tip-bg: #122a22;
+    --tip-border: #1f5240;
+    --tip-text: #74e3bb;
+    --warn-bg: #2b2410;
+    --warn-border: #4d3c14;
+    --warn-text: #fbbf24;
+    --danger-bg: #2c1620;
+    --danger-border: #5a2333;
+    --danger-text: #fb7185;
+    --standalone-bg: #241f3a;
+    --standalone-border: #362d54;
+    --standalone-text: #b9a4f5;
+    --chip-bg: #20252a;
+    --chip-border: #363e45;
+    --chip-text: #cfd6d2;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px -14px rgba(0, 0, 0, 0.6);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent-soft); }
+  a { color: var(--accent-strong); }
+  code { font-family: var(--mono); }
+  h1, h2, h3, h4 { font-family: var(--serif); font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; color: var(--text); }
+  p { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+
+  .shell { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 0; max-width: 1180px; margin: 0 auto; }
+  @media (max-width: 900px) { .shell { display: block; } }
+
+  /* ---- Sidebar TOC ---- */
+  nav.toc {
+    position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+    padding: 28px 20px 40px; border-right: 1px solid var(--border);
+  }
+  @media (max-width: 900px) {
+    nav.toc { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); padding: 18px 20px; }
+  }
+  .toc-brand { display: flex; align-items: center; gap: 8px; font-family: var(--serif); font-weight: 700; font-size: 15px; margin-bottom: 22px; color: var(--accent-strong); }
+  .toc-brand .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--accent); flex-shrink: 0; }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; font-size: 13.5px; }
+  nav.toc > ol > li { margin-bottom: 3px; }
+  nav.toc a { display: block; padding: 6px 10px; border-radius: 8px; color: var(--text-muted); text-decoration: none; }
+  nav.toc a:hover { background: var(--surface-alt); color: var(--text); }
+  nav.toc ol ol { margin: 2px 0 6px 12px; padding-left: 10px; border-left: 1px solid var(--border); }
+  nav.toc ol ol a { font-size: 12.5px; padding: 4px 10px; }
+  nav.toc > ol > li > a { font-weight: 600; color: var(--text); }
+
+  /* ---- Main content ---- */
+  main { padding: 40px 44px 120px; min-width: 0; }
+  @media (max-width: 620px) { main { padding: 28px 18px 90px; } }
+  .content-width { max-width: 720px; }
+
+  .doc-hero .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent-strong); margin: 0 0 12px; }
+  .doc-hero h1 { font-size: 34px; line-height: 1.15; margin: 0 0 16px; }
+  .doc-hero .lede { color: var(--text-muted); font-size: 16.5px; max-width: 62ch; }
+  .doc-hero { margin-bottom: 8px; padding-bottom: 30px; border-bottom: 1px solid var(--border); }
+
+  section.doc-section { padding-top: 56px; scroll-margin-top: 20px; }
+  section.doc-section h2 { font-size: 25px; margin: 0 0 6px; }
+  section.doc-section > .section-kicker { font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin: 0 0 6px; }
+  h3.sub { font-size: 19px; margin: 34px 0 8px; scroll-margin-top: 20px; }
+  h4.subsub { font-family: var(--sans); font-size: 15px; font-weight: 700; margin: 20px 0 8px; }
+
+  .ui { font-family: var(--mono); font-size: 0.86em; background: var(--chip-bg); color: var(--chip-text); border: 1px solid var(--chip-border); border-radius: 5px; padding: 1px 6px; white-space: nowrap; }
+  .path { font-family: var(--mono); font-size: 0.86em; color: var(--text-muted); }
+
+  .callout { border-radius: 12px; padding: 14px 16px; margin: 16px 0; font-size: 14.5px; border: 1px solid; }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .callout-label { display: block; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; font-weight: 700; }
+  .callout.tip { background: var(--tip-bg); border-color: var(--tip-border); color: var(--text); }
+  .callout.tip .callout-label { color: var(--tip-text); }
+  .callout.warn { background: var(--warn-bg); border-color: var(--warn-border); color: var(--text); }
+  .callout.warn .callout-label { color: var(--warn-text); }
+  .callout.danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--text); }
+  .callout.danger .callout-label { color: var(--danger-text); }
+  .callout.note { background: var(--surface-alt); border-color: var(--border); color: var(--text); }
+  .callout.note .callout-label { color: var(--text-muted); }
+
+  .shot {
+    border: 2px dashed var(--border-strong); border-radius: 12px; padding: 18px 20px;
+    margin: 18px 0; background: var(--surface-alt); display: flex; gap: 12px; align-items: flex-start;
+  }
+  .shot .shot-icon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+  .shot .shot-body { font-size: 13.5px; color: var(--text-muted); }
+  .shot .shot-body b { color: var(--text); font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 4px; }
+
+  figure.screenshot { margin: 18px 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); background: var(--surface); }
+  figure.screenshot img { display: block; width: 100%; height: auto; }
+  figure.screenshot figcaption { padding: 10px 16px; font-size: 13px; color: var(--text-muted); background: var(--surface-alt); border-top: 1px solid var(--border); }
+
+  table.ref { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  table.ref th { text-align: left; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); background: var(--surface-alt); padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  table.ref td { padding: 11px 14px; border-top: 1px solid var(--border); vertical-align: top; }
+  table.ref tr:first-child td { border-top: none; }
+  .table-scroll { overflow-x: auto; }
+
+  .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 600; border-radius: 99px; padding: 2px 8px; }
+  .badge.standalone { background: var(--standalone-bg); color: var(--standalone-text); border: 1px solid var(--standalone-border); }
+
+  .steps { counter-reset: step; list-style: none; padding-left: 0; margin: 18px 0; }
+  .steps > li { counter-increment: step; position: relative; padding-left: 40px; margin-bottom: 16px; }
+  .steps > li::before {
+    content: counter(step); position: absolute; left: 0; top: -1px; width: 26px; height: 26px;
+    border-radius: 99px; background: var(--accent-soft); color: var(--accent-strong); font-family: var(--mono);
+    font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+
+  .kv { display: grid; grid-template-columns: minmax(140px, auto) 1fr; gap: 4px 16px; font-size: 14.5px; margin: 14px 0; }
+  .kv dt { font-weight: 600; color: var(--text-muted); }
+  .kv dd { margin: 0; }
+
+  hr.rule { border: none; border-top: 1px solid var(--border); margin: 44px 0; }
+
+  .faq-item { border-top: 1px solid var(--border); padding: 18px 0; }
+  .faq-item:first-child { border-top: none; }
+  .faq-item h4 { margin: 0 0 8px; font-size: 15.5px; }
+
+  @media (max-width: 620px) {
+    table.ref { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <nav class="toc">
+    <div class="toc-brand"><span class="dot"></span>Гид Фабрики страниц</div>
+    <ol>
+      <li><a href="#concept">1. Как всё устроено</a></li>
+      <li><a href="#glossary">2. Словарь терминов</a></li>
+      <li><a href="#factory">3. Фабрика страниц</a>
+        <ol>
+          <li><a href="#factory-templates">3.1 Шаблоны продуктов</a></li>
+          <li><a href="#factory-modifiers">3.2 Модификаторы</a></li>
+          <li><a href="#factory-wizard">3.3 Создание страниц</a></li>
+          <li><a href="#factory-combinations">3.4 Комбинации</a></li>
+        </ol>
+      </li>
+      <li><a href="#pages">4. SEO-страницы</a></li>
+      <li><a href="#editor">5. Редактор страницы</a>
+        <ol>
+          <li><a href="#editor-main">5.1 Основное</a></li>
+          <li><a href="#editor-rules">5.2 Выдача</a></li>
+          <li><a href="#editor-blocks">5.3 Блоки</a></li>
+          <li><a href="#editor-json">5.4 JSON</a></li>
+          <li><a href="#editor-publish">5.5 Публикация</a></li>
+        </ol>
+      </li>
+      <li><a href="#scenarios">6. Пошаговые сценарии</a></li>
+      <li><a href="#faq">7. Частые вопросы</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <div class="content-width">
+
+      <div class="doc-hero">
+        <p class="eyebrow">Инструкция для контент-менеджера</p>
+        <h1>Фабрика страниц: как устроено и как этим пользоваться</h1>
+        <p class="lede">Этот документ — чтобы сесть и начать генерить SEO-страницы, не спрашивая разработчика на каждом шаге. Разберём оба раздела админки — «Фабрика страниц» и «SEO-страницы» — экран за экраном: что каждая кнопка делает, когда и зачем ей пользоваться, и какие сценарии проходить целиком.</p>
+      </div>
+
+      <section class="doc-section" id="concept">
+        <p class="section-kicker">Раздел 1</p>
+        <h2>Как всё устроено</h2>
+        <p>Без «Фабрики» каждая страница вроде <code class="path">/zaimy/bez-procentov/</code> была бы полностью самостоятельной копией: свой текст, свои блоки, свои правила подбора офферов. При 5 продуктах и 50+ вариантах на продукт это тысячи копий — и невозможно поправить общий текст сразу везде.</p>
+        <p>Вместо этого данные разложены на четыре уровня, которые наследуются друг от друга:</p>
+
+        <div class="shot">
+          <div class="shot-icon">🧩</div>
+          <div class="shot-body">
+            <b>Схема (текстом, не скриншот)</b>
+            <code class="path">Хаб</code> → <code class="path">Шаблон продукта</code> → <code class="path">Модификатор</code> → <code class="path">Комбинация (реальная страница)</code><br>
+            Пример: страница-хаб «Займы» → шаблон <code class="path">/{product_slug}/{modifier_slug}/{city_slug}/</code> → модификатор «Займы без процентов» → готовая страница <code class="path">/zaimy/bez-procentov/kazan/</code>.
+          </div>
+        </div>
+
+        <p>Ключевая идея: <b>комбинация не копирует контент родителей</b>. Пока страница не опубликована — она всегда показывает актуальные блоки и SEO-текст хаба и модификатора. Как только вы жмёте «Опубликовать» — система делает <b>снимок</b> (замороженную копию) итогового результата, и именно его видят посетители сайта. Это защищает сотни уже опубликованных страниц от случайной поломки, если кто-то ошибся при правке общего шаблона.</p>
+
+        <div class="callout tip">
+          <span class="callout-label">Важно понять сразу</span>
+          <p>Правка хаба или модификатора мгновенно видна в превью админки, но <b>не долетает</b> до уже опубликованных страниц автоматически. Чтобы она дошла — либо пересохранить страницу вручную, либо (для многих страниц разом) воспользоваться кнопкой <span class="ui">Переопубликовать выбранные</span> — про неё подробно в разделе 3.4.</p>
+        </div>
+      </section>
+
+      <section class="doc-section" id="glossary">
+        <p class="section-kicker">Раздел 2</p>
+        <h2>Словарь терминов</h2>
+        <p>Эти слова встречаются по всей админке — держите как шпаргалку.</p>
+
+        <div class="table-scroll">
+        <table class="ref">
+          <thead><tr><th>Термин</th><th>Что это</th></tr></thead>
+          <tbody>
+            <tr><td><b>Хаб</b></td><td>Обычная страница категории (например «Займы»). Источник общих блоков для всех вариантов продукта. Создаётся вручную через «SEO-страницы».</td></tr>
+            <tr><td><b>Шаблон продукта</b></td><td>Связка «один хаб + правило URL» на продукт. Один активный шаблон на продукт.</td></tr>
+            <tr><td><b>Модификатор</b></td><td>Переиспользуемый поисковый интент («без процентов», «на карту», «пенсионерам») со своими SEO-шаблонами и правилами подбора офферов.</td></tr>
+            <tr><td><b>Комбинация</b></td><td>Реальная опубликованная (или ещё черновик) страница — результат «шаблон × модификатор × город».</td></tr>
+            <tr><td><b>Отвязанная / независимая страница</b></td><td>Страница, для которой нажали <span class="ui">Отвязать от родителя</span> — у неё теперь свои собственные блоки и SEO-поля, правки хаба/модификатора до неё больше не долетают. Помечена фиолетовым бейджем <span class="badge standalone">независимая</span>.</td></tr>
+            <tr><td><b>Признаки (facets)</b></td><td>Теги-фильтры офферов («без справки о доходах», «пенсионерам» и т.п.). «Обязательные» — оффер обязан иметь тег; «Исключаемые» — оффер не должен его иметь.</td></tr>
+            <tr><td><b>Снимок (published_snapshot)</b></td><td>Замороженная копия итогового содержимого страницы, которую видят посетители сайта после публикации. Обновляется только явным действием (сохранение, точечная правка блока или «Переопубликовать выбранные»), не сама по себе.</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h3 class="sub">Статусы страницы</h3>
+        <div class="table-scroll">
+        <table class="ref">
+          <thead><tr><th>Статус</th><th>Что значит</th></tr></thead>
+          <tbody>
+            <tr><td><span class="ui">Черновик</span></td><td>Не видна на сайте. Начальное состояние всех новых страниц.</td></tr>
+            <tr><td><span class="ui">На проверке</span></td><td>Рабочий статус для внутренней координации — на сайт не влияет.</td></tr>
+            <tr><td><span class="ui">Готова</span></td><td>Тоже внутренний статус, «готова к публикации», но ещё не опубликована.</td></tr>
+            <tr><td><span class="ui">Опубликована</span></td><td>Видна на сайте, индексируется поисковиками (если Robots = <code class="path">index,follow</code>).</td></tr>
+            <tr><td><span class="ui">Noindex</span></td><td>Видна на сайте по прямой ссылке, но поисковикам показывать её не просим.</td></tr>
+            <tr><td><span class="ui">Архив</span></td><td>Снята с публикации, для истории.</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h3 class="sub">Значения Robots</h3>
+        <div class="kv">
+          <dt><code class="path">index,follow</code></dt><dd>Показывать в поиске, переходить по ссылкам с этой страницы. Обычный режим для опубликованной страницы.</dd>
+          <dt><code class="path">noindex,follow</code></dt><dd>Не показывать в поиске, но ссылки на странице всё равно учитывать. Обычный режим для черновиков.</dd>
+          <dt><code class="path">noindex,nofollow</code></dt><dd>Полностью скрыть от поисковика — не индексировать и не переходить по ссылкам.</dd>
+        </div>
+      </section>
+
+      <section class="doc-section" id="factory">
+        <p class="section-kicker">Раздел 3</p>
+        <h2>Раздел «Фабрика страниц»</h2>
+        <p>Слева в меню — <span class="ui">Фабрика страниц</span>. Внутри четыре вкладки: <span class="ui">Шаблоны продуктов</span>, <span class="ui">Модификаторы</span>, <span class="ui">Создание страниц</span>, <span class="ui">Комбинации</span>. Идти по ним нужно именно в этом порядке при первой настройке продукта — дальше в основном будете жить во вкладках «Модификаторы» и «Комбинации».</p>
+
+        <figure class="screenshot">
+          <img src="https://cdnkwikmenu.online/docs-generator/20260818-212244-297da44c-01-factory-templates-tab.webp" alt="Раздел «Фабрика SEO-страниц», вкладка «Шаблоны продуктов»" loading="lazy">
+          <figcaption>Раздел «Фабрика SEO-страниц» с 4 вкладками наверху, активна вкладка «Шаблоны продуктов».</figcaption>
+        </figure>
+
+        <h3 class="sub" id="factory-templates">3.1 Вкладка «Шаблоны продуктов»</h3>
+        <p>Здесь задаётся основа каждого продукта: какая страница-хаб даёт общие блоки и по какому шаблону строится URL. Обычно настраивается один раз при запуске нового продукта — дальше сюда почти не возвращаются.</p>
+
+        <p>Карточка шаблона показывает:</p>
+        <ul>
+          <li>бейдж <span class="ui">Активен</span> / <span class="ui">Выключен</span>;</li>
+          <li><b>Источник блоков</b> — какая страница-хаб используется;</li>
+          <li><b>Создано комбинаций</b> — сколько страниц уже построено по этому шаблону;</li>
+          <li><b>Шаблон URL</b> — например <code class="path">/{product_slug}/{modifier_slug}/{city_slug}/</code>.</li>
+        </ul>
+
+        <p>Кнопка <span class="ui">Добавить шаблон</span> открывает форму:</p>
+        <div class="kv">
+          <dt>Продукт</dt><dd>к какому продукту относится.</dd>
+          <dt>Страница-источник</dt><dd>выбрать уже существующую страницу-хаб (её надо создать заранее через «SEO-страницы», см. раздел 6.1).</dd>
+          <dt>Название</dt><dd>для себя, например «Займы — основной шаблон».</dd>
+          <dt>Системный ключ</dt><dd>техническое имя, например <code class="path">loans</code>.</dd>
+          <dt>Шаблон URL</dt><dd>доступны плейсхолдеры <code class="path">{product_slug}</code>, <code class="path">{modifier_slug}</code>, <code class="path">{city_slug}</code>. Пустая часть (например, без города) убирается автоматически.</dd>
+          <dt>Описание для команды</dt><dd>заметка для коллег, на сайт не влияет.</dd>
+          <dt>Разрешить создание новых страниц</dt><dd>чекбокс — если снять, мастер «Создание страниц» перестанет предлагать этот шаблон.</dd>
+        </div>
+
+        <figure class="screenshot">
+          <img src="https://cdnkwikmenu.online/docs-generator/20260818-212534-9fae7e4d-02-template-modal.webp" alt="Модальное окно шаблона продукта с заполненными полями" loading="lazy">
+          <figcaption>Модальное окно шаблона продукта с заполненными полями (форма редактирования — у создания те же поля, пустые).</figcaption>
+        </figure>
+
+        <h3 class="sub" id="factory-modifiers">3.2 Вкладка «Модификаторы»</h3>
+        <p>Модификатор — это переиспользуемый поисковый интент: «без процентов», «на карту», «пенсионерам» и т.д. У каждого — свои SEO-шаблоны и правило подбора офферов, которые потом применяются ко всем городам разом.</p>
+
+        <p>Таблица показывает колонки: <b>Модификатор</b>, <b>Продукт</b>, <b>Источник блоков</b> (обычно «Шаблон продукта», если у модификатора нет своих уникальных блоков), <b>Страниц</b> (сколько уже создано).</p>
+
+        <h4 class="subsub">Способ 1 — создать один модификатор вручную</h4>
+        <p>Кнопка <span class="ui">Новый модификатор</span>. Форма из трёх блоков:</p>
+        <div class="kv">
+          <dt>Продукт</dt><dd>к какому продукту относится.</dd>
+          <dt>Своя страница с блоками</dt><dd>необязательно. Без неё используются блоки хаба (обычный случай).</dd>
+          <dt>Название</dt><dd>человекочитаемое, например «Займы без процентов».</dd>
+          <dt>Часть URL</dt><dd>например <code class="path">bez-procentov</code> — заполняется автоматически транслитерацией по мере набора названия, можно поправить руками.</dd>
+          <dt>Системный ключ</dt><dd>техническое имя, например <code class="path">interest_free</code>.</dd>
+          <dt>Группа для навигации</dt><dd>одна из шести: <i>По сумме</i>, <i>По сроку</i>, <i>По категориям заёмщиков</i>, <i>Способ получения/оплаты</i>, <i>Скорость и одобрение</i>, <i>Прочие свойства</i>. Используется для группировки ссылок на публичном сайте (блок «Популярные направления» показывает модификаторы секциями по группам, с иконкой).</dd>
+        </div>
+
+        <p><b>SEO-шаблоны</b> — сюда можно вставлять макросы <code class="path">{{product}}</code>, <code class="path">{{modifier}}</code>, <code class="path">{{city}}</code>, <code class="path">{{city_phrase}}</code>, они подставляются отдельно для каждой итоговой страницы:</p>
+        <div class="kv">
+          <dt>H1</dt><dd>например <code class="path">{{modifier}}</code> → «Займы без процентов».</dd>
+          <dt>Title</dt><dd>заголовок вкладки браузера / сниппета в поиске.</dd>
+          <dt>Meta description</dt><dd>описание под заголовком в поиске.</dd>
+          <dt>SEO-текст блока</dt><dd>необязательный отдельный вводный абзац — он подставится <b>под первый экран страницы (в подзаголовок)</b>, а не в заголовок. Обычно его не пишут руками, а генерируют AI'ом при пакетном импорте (см. ниже) — так у каждого модификатора появляется свой уникальный текст вместо одинакового у всех.</dd>
+        </div>
+
+        <p><b>Правило выдачи</b> — какие офферы подходят под этот интент: <code class="path">Сумма от</code>/<code class="path">Сумма до</code>, <code class="path">Срок от, дней</code>/<code class="path">Срок до, дней</code>, плюс списки <b>Обязательные признаки</b> и <b>Исключаемые признаки</b> (чекбоксы по справочнику признаков).</p>
+        <p>Чекбокс <span class="ui">Разрешить использовать в мастере</span> — если снять, модификатор перестанет предлагаться в «Создании страниц».</p>
+
+        <figure class="screenshot">
+          <img src="https://cdnkwikmenu.online/docs-generator/20260818-212754-ce26827f-03-modifier-form.webp" alt="Форма модификатора с заполненными полями" loading="lazy">
+          <figcaption>Форма модификатора целиком — от «Продукт» до начала «SEO-шаблонов» (форма редактирования — у создания те же поля).</figcaption>
+        </figure>
+
+        <h4 class="subsub">Способ 2 — пакетный импорт (с AI), до 200 названий за раз</h4>
+        <p>Это самый быстрый способ завести сразу много модификаторов. Кнопка <span class="ui">Импортировать список</span>.</p>
+
+        <ol class="steps">
+          <li><b>Выбрать продукт</b> в модальном окне.</li>
+          <li><b>Вставить названия — по одному на строке</b> в текстовое поле, например:
+            <div class="callout note"><p><code class="path">Займы без процентов</code><br><code class="path">Займы на карту</code><br><code class="path">Займы пенсионерам</code></p></div>
+            Поддерживаются и списки через <code class="path">;</code>, маркеры, нумерация.
+          </li>
+          <li>Нажать <span class="ui">Разобрать список</span>. Система бесплатно и мгновенно: уберёт точные повторы, транслитерирует каждое название в <code class="path">slug</code>/<code class="path">key</code>, найдёт уже существующие дубли, предложит подходящие признаки по буквальному совпадению слов, и пометит каждую строку статусом: <span class="ui">Готово</span>, <span class="ui">Проверить</span> или <span class="ui">Дубль</span>.</li>
+          <li>Раскрыть сомнительные строки (иконка стрелки в конце строки) — там видно и можно поправить: H1, Title, Meta description, SEO-текст блока, Группа для навигации, Описание для команды, а также Selector (суммы/сроки, признаки).</li>
+          <li>При желании нажать <span class="ui">Улучшить весь пакет через AI</span> — см. отдельно ниже, что именно делает AI.</li>
+          <li>Снять галочку <span class="ui">Взять</span> у строк, которые не нужны создавать (например «Дубль»).</li>
+          <li>Нажать <span class="ui">Создать выбранные</span> — создаются только модификаторы. Страницы для них ещё не создаются, это отдельный шаг («Создание страниц», вкладка 3.3).</li>
+        </ol>
+
+        <figure class="screenshot">
+          <img src="https://cdnkwikmenu.online/docs-generator/20260818-213251-c0ca43c9-04-bulk-import-modal.webp" alt="Окно пакетного импорта после разбора списка" loading="lazy">
+          <figcaption>Окно пакетного импорта после «Разобрать список» на тестовом списке названий — статусы Готово/Проверить/Дубль и раскрытые детали строки.</figcaption>
+        </figure>
+
+        <h4 class="subsub">Что именно делает «Улучшить весь пакет через AI»</h4>
+        <p>Кнопка появляется после разбора списка. AI обрабатывает до 100 новых строк за один пакет (если больше — появится предупреждение «AI обрабатывает до 100 новых строк за пакет. Разделите список»).</p>
+        <div class="callout tip">
+          <span class="callout-label">AI разрешено</span>
+          <p>Улучшить описание для команды; улучшить H1/Title/Meta description; сгенерировать уникальный <span class="ui">SEO-текст блока</span> под каждый модификатор; предложить сумму/срок; выбрать признаки только из уже существующего справочника; определить подходящую <span class="ui">Группу для навигации</span> из шести существующих; добавить предупреждения, если нужно.</p>
+        </div>
+        <div class="callout danger">
+          <span class="callout-label">AI запрещено</span>
+          <p>Менять <code class="path">slug</code>/<code class="path">key</code> и состав списка; создавать модификаторы или страницы; публиковать что-либо; придумывать несуществующие признаки; убирать <code class="path">{{city_phrase}}</code> или название интента из SEO-полей.</p>
+        </div>
+        <p>Даже успешный AI-ответ всегда получает статус <span class="ui">Проверить</span> — ничего не создаётся автоматически, только по явному нажатию <span class="ui">Создать выбранные</span> после вашей проверки.</p>
+
+        <h3 class="sub" id="factory-wizard">3.3 Вкладка «Создание страниц»</h3>
+        <p>Здесь модификаторы превращаются в реальные (пока черновики) страницы — по одной на каждую выбранную комбинацию «модификатор × город».</p>
+
+        <ol class="steps">
+          <li><b>Выберите основу продукта</b> — шаблон из выпадающего списка.</li>
+          <li><b>Отметьте модификаторы</b> — чекбоксами, можно несколько сразу. Под каждым видно часть URL и сколько страниц по нему уже есть.</li>
+          <li><b>Выберите географию</b> — отдельная карточка <span class="ui">Без города</span> (создаёт основную общероссийскую страницу модификатора) плюс список городов. Под каждым городом, если у офферов продукта настроена гео-доступность не на всю страну, будет счётчик <code class="path">офферов: N из M</code> (жёлтый, если частично) или <code class="path">нет доступных офферов</code> (красный).</li>
+        </ol>
+
+        <div class="callout warn">
+          <span class="callout-label">Проверяйте перед добавлением города</span>
+          <p>«У части офферов этого продукта настроена гео-доступность — проверяйте счётчик под каждым городом, иначе новая страница может показать меньше предложений, чем ожидается.» Если у города 0 доступных офферов — сначала стоит настроить доступность нужных офферов по этому городу в карточке оффера, а уже потом создавать страницу.</p>
+        </div>
+
+        <p>Справа — сводка <b>«Итог создания»</b>: выбранный шаблон, сколько модификаторов, сколько городов, сколько черновиков будет создано. Ниже — важная подсказка: «Система пропустит уже существующие URL. Ничего не публикуется автоматически» — то есть повторный запуск мастера безопасен, задвоений не будет.</p>
+
+        <p>Кнопка <span class="ui">Создать черновики</span> — после неё результат: <code class="path">Создано: N</code>, и если что-то пропущено — список <code class="path">Пропущено: N</code> с точной причиной по каждому URL (город выключен, URL уже существует, модификатор не подходит продукту и т.п.), а не просто цифра.</p>
+
+        <figure class="screenshot">
+          <img src="https://cdnkwikmenu.online/docs-generator/20260818-213449-66a74cc7-05-wizard-full.webp" alt="Мастер «Создание страниц» — все три шага и сводка" loading="lazy">
+          <figcaption>Мастер «Создание страниц» целиком: выбор шаблона, модификаторов и городов, сводка «Итог создания» справа, и уже созданные комбинации снизу. У этого продукта все офферы доступны везде — жёлтых/красных счётчиков доступности под городами здесь не видно, они появляются только когда у офферов настроена ограниченная гео-доступность.</figcaption>
+        </figure>
+
+        <h3 class="sub" id="factory-combinations">3.4 Вкладка «Комбинации»</h3>
+        <p>Здесь живут уже созданные страницы одного шаблона — сгруппированы по модификатору (сначала «без города», дальше города по алфавиту). Это основной экран для повседневной работы: не нужно искать нужную страницу в общем реестре «SEO-страницы», всё под рукой по модификаторам.</p>
+
+        <p>Заголовок каждой группы показывает название модификатора, бейдж его группы навигации и счётчик <code class="path">N из M опубликовано</code>.</p>
+
+        <p><b>Фильтры сверху:</b> поиск по H1/URL, выпадающий список модификаторов, выпадающий список статусов, чекбокс <span class="ui">Только независимые</span> (показать только отвязанные страницы), чекбокс <span class="ui">Выбрать все (N)</span> — выделяет сразу все отфильтрованные страницы во всех группах, не только в одной.</p>
+
+        <p><b>Колонки таблицы</b> внутри каждой группы: чекбокс выделения (в шапке группы — «выбрать все в группе»), <b>Статус</b> (можно менять прямо тут через выпадающий список — сохраняется сразу, без захода в редактор), <b>Город</b>, <b>Страница</b> (H1 + URL, и фиолетовый бейдж <span class="badge standalone">независимая</span>, если страница отвязана), <b>Meta description</b>, <b>Офферы</b> (сколько подошло), <b>Опубликовано</b> (дата), и кнопка <span class="ui">Редактировать</span> — открывает полный редактор страницы (раздел 5).</p>
+
+        <figure class="screenshot">
+          <img src="https://cdnkwikmenu.online/docs-generator/20260818-213517-43f699e6-06-combinations-tab.webp" alt="Вкладка «Комбинации» с фильтрами и строкой с бейджем «независимая»" loading="lazy">
+          <figcaption>Вкладка «Комбинации» — фильтры сверху, группа модификатора со строкой, помеченной бейджем «независимая».</figcaption>
+        </figure>
+
+        <h4 class="subsub">Массовые действия</h4>
+        <p>Как только отмечена хотя бы одна страница (не важно — чекбоксом в шапке группы или общим «Выбрать все»), появляется панель с тремя действиями:</p>
+
+        <div class="kv">
+          <dt><span class="ui">Применить</span></dt><dd>меняет статус у всех выделенных страниц разом на тот, что выбран в соседнем выпадающем списке. Каждая страница обрабатывается отдельно — если у одной не хватает обязательных блоков для публикации, остальные всё равно применятся, а её причину покажут в результате.</dd>
+          <dt><span class="ui">Переопубликовать выбранные</span></dt><dd>пересобирает «снимок» (то, что видят посетители сайта) у всех выделенных <b>уже опубликованных</b> страниц — используйте это после того, как поправили что-то на хабе или в модификаторе, чтобы правка долетела до сайта без захода в каждую страницу по отдельности. Черновики в выборке просто пропускаются с пометкой «Страница не опубликована» — это не ошибка. Отвязанные страницы в выборке ничем не рискуют: у них уже свои собственные блоки, так что переопубликовать их — безопасное действие без последствий.</dd>
+          <dt><span class="ui">Удалить выбранные</span></dt><dd>необратимо удаляет отмеченные страницы, после подтверждения.</dd>
+        </div>
+
+        <div class="callout tip">
+          <span class="callout-label">Типичный сценарий</span>
+          <p>Поправили текст в первом экране на хабе «Займы» → перешли в «Комбинации» → отметили нужную группу модификатора (или сразу «Выбрать все») → <span class="ui">Переопубликовать выбранные</span> → новый текст сразу на сайте у всех выбранных страниц, без единого захода в отдельный редактор.</p>
+        </div>
+
+        <p>После любого массового действия появляется зелёная панель с итогом: <code class="path">Обновлено: N</code> / <code class="path">Переопубликовано: N</code> / <code class="path">Удалено: N</code>, и если что-то не получилось — список причин под ним.</p>
+      </section>
+
+      <section class="doc-section" id="pages">
+        <p class="section-kicker">Раздел 4</p>
+        <h2>Раздел «SEO-страницы»</h2>
+        <p>Это общий, не сгруппированный список <b>вообще всех</b> страниц сайта — и созданных Фабрикой, и обычных ручных, включая сами страницы-хабы. Полезен для поиска конкретной страницы по названию/URL, для взгляда на всё сразу, и — самое важное — это единственное место, где создаются <b>страницы-хабы</b> (кнопка <span class="ui">Новая страница</span>), потому что Фабрика их не создаёт, а только использует уже существующие.</p>
+
+        <p><b>Фильтры:</b> поиск по H1/URL, чекбокс <span class="ui">Только независимые</span>. Список постранично, по 50 страниц.</p>
+
+        <p><b>Колонки:</b> <b>Страница</b> (H1 + slug + бейдж <span class="badge standalone">независимая</span>, если отвязана), <b>Тип</b> (Хаб / Модификатор / Комбинация / Сумма / Срок / Аудитория / Гео), <b>Офферы</b> (подошло/минимум), <b>Индексация</b> (значение Robots), <b>Статус</b>.</p>
+
+        <figure class="screenshot">
+          <img src="https://cdnkwikmenu.online/docs-generator/20260818-213622-b18dff2b-07-seo-pages-list.webp" alt="Список «SEO-страницы» с разными типами страниц" loading="lazy">
+          <figcaption>Список «SEO-страницы» — виден тип «Хаб» у первой строки, «Комбинация» у остальных, и бейдж «независимая» у отвязанной страницы. Чекбокс «Только независимые» — над таблицей слева.</figcaption>
+        </figure>
+
+        <div class="callout note">
+          <span class="callout-label">Когда сюда, а когда в Фабрику</span>
+          <p>В «Фабрику» — когда нужно создать/настроить много однотипных страниц по шаблону (продукт × интент × город). В «SEO-страницы» напрямую — когда нужна страница-хаб (категория), либо совсем одиночная уникальная страница вне какого-либо шаблона, либо просто быстро найти/отредактировать что-то по названию.</p>
+        </div>
+      </section>
+
+      <section class="doc-section" id="editor">
+        <p class="section-kicker">Раздел 5</p>
+        <h2>Редактор страницы</h2>
+        <p>Открывается кнопкой <span class="ui">Редактировать</span> откуда угодно — и из «SEO-страницы», и из «Комбинаций». Внутри пять вкладок: <span class="ui">Основное</span>, <span class="ui">Выдача</span>, <span class="ui">Блоки</span>, <span class="ui">JSON</span>, <span class="ui">Публикация</span>.</p>
+
+        <p>Если страница наследует от шаблона/модификатора и ещё не отвязана, сверху на любой вкладке — синий баннер:</p>
+        <div class="callout note">
+          <span class="callout-label">Баннер «Наследуемая страница»</span>
+          <p>«SEO, выдача и блоки приходят из шаблона продукта и модификатора. Изменённые здесь поля сохраняются только для этого URL; после изменения родителя публичная версия обновится лишь при повторной публикации.»</p>
+        </div>
+
+        <p>Наверху страницы (кроме создания новой) — кнопка <span class="ui">Подготовить через AI</span>: отдельный инструмент, который по 1–3 источникам (ссылки/текст) генерирует сразу всю структуру страницы — заголовки и набор блоков черновиком. Отдельно от неё — <span class="ui">JSON preview</span>, открывает в новой вкладке итоговый документ страницы как его получит публичный сайт (удобно для проверки перед публикацией).</p>
+
+        <div class="callout warn">
+          <span class="callout-label">Не перепутайте кнопки «Сохранить»</span>
+          <p>Верхняя кнопка <span class="ui">Сохранить</span> сохраняет только то, что на вкладке <span class="ui">Основное</span>/<span class="ui">Выдача</span>/<span class="ui">Публикация</span> — <b>она не сохраняет правки внутри блоков</b>. Для блока есть своя отдельная кнопка <span class="ui">Сохранить блок</span> прямо под его полями (вкладка «Блоки»). Если поправили текст в блоке и нажали только верхнее «Сохранить» — правка блока не уйдёт.</p>
+        </div>
+
+        <h3 class="sub" id="editor-main">5.1 Вкладка «Основное»</h3>
+        <p>Базовые поля: <code class="path">URL</code>, <code class="path">Продукт</code>, <code class="path">Тип</code>, <code class="path">H1</code>, <code class="path">Title</code>, <code class="path">Meta description</code>.</p>
+        <p>Для наследуемой страницы у H1/Title/Meta description рядом с полем — подсказка: «Наследуется из модификатора» (пока не трогали) или «Изменено только для этой страницы» + кнопка <span class="ui">Вернуть</span> (стирает вашу правку, поле снова начинает наследоваться из шаблона).</p>
+
+        <h4 class="subsub">Кнопка «Сгенерировать через AI» (SEO-поля)</h4>
+        <p>Открывает окно «Сгенерировать SEO-метаданные»:</p>
+        <ol class="steps">
+          <li>Ввести <span class="ui">Целевая ключевая фраза</span> — например «займ без процентов». Подсказка: фраза попадёт без изменения слов и порядка во все три поля.</li>
+          <li>Нажать <span class="ui">Сгенерировать</span>, дождаться (можно закрыть окно — задача продолжится на сервере).</li>
+          <li>В результате — готовые H1/Title/Meta description с подтверждением, что ключевая фраза проверена во всех трёх.</li>
+          <li><span class="ui">Перенести в форму</span> — подставит в поля (пока не сохранено), или <span class="ui">Изменить запрос</span> — попробовать другую фразу.</li>
+        </ol>
+
+        <figure class="screenshot">
+          <img src="https://cdnkwikmenu.online/docs-generator/20260818-214006-c7034449-08-seo-ai-modal-result.webp" alt="Окно «Сгенерировать SEO-метаданные» с готовым результатом" loading="lazy">
+          <figcaption>Окно «Сгенерировать SEO-метаданные» с результатом по фразе «займ на карту» — готовые H1/Title/Meta description.</figcaption>
+        </figure>
+
+        <h3 class="sub" id="editor-rules">5.2 Вкладка «Выдача»</h3>
+        <p>Правило подбора офферов конкретно для этой страницы: <code class="path">Сумма от</code>/<code class="path">Сумма до</code>, <code class="path">Срок от, дней</code>/<code class="path">Срок до, дней</code>, <code class="path">Город</code> (или «Без гео»), <code class="path">Минимум офферов</code> — это не жёсткое ограничение, а ориентир для внутренней диагностики.</p>
+        <p>Ниже — <b>Обязательные признаки</b> и <b>Исключаемые признаки</b>. Унаследованные от хаба/модификатора показаны с пометкой <span class="ui">унаследовано</span> и задизейблены — снять их точечно на одной странице нельзя (это надо делать на уровне модификатора, что затронет сразу все его страницы), но можно добавить свои поверх.</p>
+        <p>Для уже существующей страницы ниже — блок <b>«Результат правила выдачи»</b>: <code class="path">Подошло: N</code>, <code class="path">Не подошло: N</code> с причинами по каждому исключённому офферу, и кнопка <span class="ui">Обновить</span> (пересчитать после правки полей).</p>
+
+        <h3 class="sub" id="editor-blocks">5.3 Вкладка «Блоки»</h3>
+        <p>Здесь собирается видимое содержимое страницы — упорядоченный список блоков.</p>
+
+        <h4 class="subsub">Если страница наследует блоки от хаба</h4>
+        <p>Пока у страницы нет ни одного собственного блока, вместо списка — баннер:</p>
+        <div class="callout note">
+          <span class="callout-label">Баннер «Используются наследуемые блоки»</span>
+          <p>«Их можно увидеть в JSON preview и на публичной странице. Чтобы изменить общий набор, откройте страницу-источник из «Фабрики страниц». Если добавить сюда первый локальный блок вручную, он станет индивидуальным набором блоков только для этого URL.»</p>
+        </div>
+
+        <h4 class="subsub">Кнопка «Отвязать от родителя»</h4>
+        <p>Под баннером — кнопка <span class="ui">Отвязать от родителя</span>. Это одно из самых важных действий в редакторе, разберём подробно.</p>
+        <p><b>Что она делает:</b> копирует текущий, уже полностью резолвленный вид страницы — все блоки хаба/модификатора плюс title/H1/meta description/canonical/минимум офферов — в собственные данные именно этой страницы, одним действием. После этого страница помечается бейджем <span class="badge standalone">независимая</span> и живёт полностью самостоятельно: её можно свободно редактировать в визуальном редакторе как обычную страницу.</p>
+        <p><b>Что теряется:</b> дальнейшие правки хаба и модификатора <u>больше не долетают</u> до этой конкретной страницы (остальные страницы на том же шаблоне — не отвязанные — продолжают наследовать бесплатно, как раньше).</p>
+        <p><b>Когда использовать:</b> когда нужна по-настоящему уникальная страница — с собственным, ничем не связанным содержимым, отличным от остальных страниц того же модификатора.</p>
+        <p>При нажатии — подтверждение: «Скопировать текущий вид страницы (блоки + title/H1/meta) в её собственные данные? Дальше правки хаба/модификатора сюда доезжать не будут.» Действие можно нажать повторно в любой момент позже — тогда оно просто ещё раз пересинхронизирует с текущим состоянием родителя на момент нажатия (не «сложение», а полная перезапись).</p>
+
+        <div class="callout warn">
+          <span class="callout-label">Обратной кнопки нет</span>
+          <p>«Прикрепить обратно» одной кнопкой не предусмотрено — это осознанное решение. Если ошиблись — можно вручную удалить собственные блоки (корзиной у каждого) и нажать <span class="ui">Вернуть</span> у каждого из полей H1/Title/Meta description/Canonical на вкладке «Основное».</p>
+        </div>
+
+        <h4 class="subsub">Панель блоков</h4>
+        <p>Заголовок панели — <b>«Локальные блоки»</b> (если страница на шаблоне) или <b>«Структура страницы»</b> (если самостоятельная), и счётчик количества. Справа — выпадающий список типа блока и кнопка <span class="ui">Добавить</span>.</p>
+
+        <p>Виды блоков:</p>
+        <div class="table-scroll">
+        <table class="ref">
+          <thead><tr><th>Название в интерфейсе</th><th>Для чего</th></tr></thead>
+          <tbody>
+            <tr><td>Первый экран</td><td>Главный заголовочный блок вверху страницы: подзаголовок, бейдж, текст кнопки. Обязателен для публикации.</td></tr>
+            <tr><td>Витрина офферов</td><td>Основной динамический список предложений — какие именно офферы покажет, определяется вкладкой «Выдача». Обязателен для публикации.</td></tr>
+            <tr><td>МФО месяца</td><td>Небольшая вручную закреплённая подборка офферов (в отличие от «Витрины» — не по правилу, а конкретный выбор).</td></tr>
+            <tr><td>Популярные направления</td><td>Ссылки на другие страницы. Если ссылок больше одной группы навигации — рендерятся секциями с иконками по группам.</td></tr>
+            <tr><td>Популярные города</td><td>Ссылки на городские версии той же страницы.</td></tr>
+            <tr><td>Как выбрать займ</td><td>Редакционный список шагов.</td></tr>
+            <tr><td>Кто может получить</td><td>Список требований к заёмщику.</td></tr>
+            <tr><td>Документы</td><td>Список нужных документов.</td></tr>
+            <tr><td>Перед оформлением</td><td>Список предупреждений/важных заметок.</td></tr>
+            <tr><td>FAQ</td><td>Вопросы и ответы, с точечной AI-генерацией по одному вопросу.</td></tr>
+            <tr><td>Статьи</td><td>Показывает закреплённые опубликованные статьи, затем дополняет свежими до пяти. Черновики статей пропускаются автоматически.</td></tr>
+            <tr><td>Текстовый блок</td><td>Свободный текст (списки, подзаголовки, ссылки), поддерживает макросы и AI-генерацию.</td></tr>
+            <tr><td>Эксперт</td><td>Один выбранный эксперт из справочника — на сайте покажет фото, имя, должность, описание.</td></tr>
+            <tr><td>Отзывы</td><td>Устаревший тип, временно скрыт из списка добавления новых блоков — публичный показ и модерация отзывов ещё не готовы.</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <figure class="screenshot">
+          <img src="https://cdnkwikmenu.online/docs-generator/20260818-214225-2601214c-09-blocks-hero-editor.webp" alt="Вкладка «Блоки» с развёрнутым блоком «Первый экран»" loading="lazy">
+          <figcaption>Вкладка «Блоки» на отвязанной странице — «Локальные блоки» (9 штук), развёрнутый блок «Первый экран» с полем «Заголовок блока» и чекбоксом «Показывать блок».</figcaption>
+        </figure>
+
+        <h4 class="subsub">Управление блоком</h4>
+        <p>У каждого блока в списке — стрелки <b>вверх</b>/<b>вниз</b> (порядок), иконка <b>копировать</b>, иконка <b>удалить</b> (с подтверждением), поле <code class="path">Заголовок блока</code>, чекбокс <span class="ui">Показывать блок</span> (выключить блок, не удаляя), и кнопка <span class="ui">Сохранить блок</span> внизу — сохраняет именно этот блок отдельно от остальной формы.</p>
+
+        <h4 class="subsub">Макросы и AI-генерация текста внутри блока</h4>
+        <p>В блоках «Текстовый блок» и в ответах FAQ можно использовать те же макросы, что и в SEO-полях модификатора: <code class="path">{{product}}</code>, <code class="path">{{modifier}}</code>, <code class="path">{{city}}</code>, <code class="path">{{city_phrase}}</code> — подставятся отдельно для каждой наследующей страницы. В самом редакторе блока виден сырой шаблон с макросами как есть, не подставленный.</p>
+        <p>Кнопка <span class="ui">Сгенерировать через AI</span> внутри такого блока открывает окно, где нужно отметить, какие плейсхолдеры обязательно должны остаться в тексте (Продукт / Модификатор / Город), опционально дать инструкцию AI, и получить готовый абзац (или пару вопрос-ответ для FAQ) — <span class="ui">Перенести в блок</span> добавит его в конец текста/списка вопросов.</p>
+
+        <h3 class="sub" id="editor-json">5.4 Вкладка «JSON»</h3>
+        <p>Технический режим: весь документ страницы (поля + блоки) одним JSON, который можно скопировать во внешний AI-инструмент, попросить поправить, вставить обратно и сохранить. Для повседневной работы контент-менеджеру обычно не нужен — используйте визуальный редактор («Блоки», «Основное»). Полезен, если разработчик или AI-помощник попросил прислать/вставить «JSON страницы».</p>
+        <p>Кнопки: <span class="ui">Обновить из формы</span>, <span class="ui">Форматировать</span>, <span class="ui">Копировать</span>, и внизу <span class="ui">Применить в редактор</span> (не сохраняя) / <span class="ui">Применить и сохранить</span>.</p>
+        <div class="callout warn">
+          <span class="callout-label">Ограничение</span>
+          <p>Удалить блок через JSON нельзя намеренно — для удаления используйте иконку корзины в визуальном редакторе на вкладке «Блоки».</p>
+        </div>
+
+        <h3 class="sub" id="editor-publish">5.5 Вкладка «Публикация»</h3>
+        <p>Поля <code class="path">Статус</code> и <code class="path">Robots</code> (см. словарь терминов выше) и <code class="path">Canonical</code>.</p>
+        <p>Сверху — чек-лист готовности: если чего-то не хватает, список замечаний (например «Не заполнен H1», «Нет первого экрана», «Нет витрины офферов»); если всё в порядке — «Страница готова к публикации».</p>
+        <p>После публикации помните про снимок (раздел 1 и 2): дальнейшие точечные правки блока/полей теперь сами обновляют снимок автоматически при сохранении — отдельно ничего нажимать не нужно. А вот правки <b>родителя</b> (хаба/модификатора) на уже опубликованную страницу сами не долетают — для этого либо пересохранить страницу вручную, либо массово через <span class="ui">Переопубликовать выбранные</span> во вкладке «Комбинации» (раздел 3.4).</p>
+
+        <figure class="screenshot">
+          <img src="https://cdnkwikmenu.online/docs-generator/20260818-214304-61f87aa7-10-publish-tab.webp" alt="Вкладка «Публикация» в состоянии готовности" loading="lazy">
+          <figcaption>Вкладка «Публикация» — статус «published», Robots «index,follow», зелёная плашка «Страница готова к публикации».</figcaption>
+        </figure>
+      </section>
+
+      <section class="doc-section" id="scenarios">
+        <p class="section-kicker">Раздел 6</p>
+        <h2>Пошаговые сценарии</h2>
+
+        <h3 class="sub">6.1 С нуля: запустить новый продукт</h3>
+        <ol class="steps">
+          <li>«SEO-страницы» → <span class="ui">Новая страница</span> — создать страницу-хаб (например «Займы»), заполнить H1/Title/Meta description, добавить блоки «Первый экран» и «Витрина офферов» (минимум), опубликовать.</li>
+          <li>«Фабрика страниц» → «Шаблоны продуктов» → <span class="ui">Добавить шаблон</span> — указать этот хаб как источник блоков, задать шаблон URL.</li>
+          <li>«Модификаторы» → <span class="ui">Импортировать список</span> — вставить список интентов, «Разобрать список», по желанию «Улучшить весь пакет через AI», выбрать нужные строки, «Создать выбранные».</li>
+          <li>«Создание страниц» — выбрать шаблон, отметить модификаторы и города, «Создать черновики».</li>
+          <li>«Комбинации» — проверить черновики выборочно, отметить нужные и через панель массовых действий сменить статус на «Опубликована» (или зайти в каждую и опубликовать вручную).</li>
+        </ol>
+
+        <h3 class="sub">6.2 Поправили текст на хабе — обновить уже опубликованные страницы</h3>
+        <ol class="steps">
+          <li>Открыть страницу-хаб («SEO-страницы» → найти по названию → «Редактировать»), поправить нужный блок, <span class="ui">Сохранить блок</span>.</li>
+          <li>Перейти в «Фабрика страниц» → «Комбинации».</li>
+          <li>Отметить нужную группу модификатора чекбоксом в шапке группы (или <span class="ui">Выбрать все</span>, если нужно везде).</li>
+          <li><span class="ui">Переопубликовать выбранные</span>.</li>
+        </ol>
+
+        <h3 class="sub">6.3 Сделать одну страницу полностью уникальной</h3>
+        <ol class="steps">
+          <li>Открыть нужную страницу, вкладка «Блоки».</li>
+          <li><span class="ui">Отвязать от родителя</span>, подтвердить.</li>
+          <li>Дальше редактировать блоки/тексты как у обычной ручной страницы — правки хаба сюда больше не попадут.</li>
+        </ol>
+
+        <h3 class="sub">6.4 Добавить новый город к уже существующему продукту</h3>
+        <ol class="steps">
+          <li>«Фабрика страниц» → «Создание страниц».</li>
+          <li>Выбрать тот же шаблон, отметить нужные модификаторы (или все).</li>
+          <li>На шаге городов — отметить новый город. Проверить счётчик доступности офферов под ним.</li>
+          <li><span class="ui">Создать черновики</span> — уже существующие URL под другие города система сама пропустит.</li>
+          <li>Проверить и опубликовать новые черновики через «Комбинации».</li>
+        </ol>
+      </section>
+
+      <section class="doc-section" id="faq">
+        <p class="section-kicker">Раздел 7</p>
+        <h2>Частые вопросы</h2>
+
+        <div class="faq-item">
+          <h4>На странице показывает 0 офферов — почему?</h4>
+          <p>Проверьте вкладку «Выдача» — возможно, правило (сумма/срок/признаки/город) слишком узкое, либо у нужных офферов не настроена доступность по этому городу (см. раздел 3.3 про счётчики доступности).</p>
+        </div>
+        <div class="faq-item">
+          <h4>Кнопка публикации недоступна / есть предупреждения — что не так?</h4>
+          <p>Смотрите список замечаний на вкладке «Публикация» — обычно не хватает H1/Title, блока «Первый экран» или «Витрины офферов».</p>
+        </div>
+        <div class="faq-item">
+          <h4>Что значит фиолетовый бейдж «независимая»?</h4>
+          <p>Страницу отвязали от родителя (раздел 5.3) — у неё свои блоки и SEO-поля, правки хаба/модификатора до неё не доходят.</p>
+        </div>
+        <div class="faq-item">
+          <h4>Поправил текст в блоке, нажал «Сохранить» вверху — на сайте старый текст. Почему?</h4>
+          <p>Верхняя кнопка «Сохранить» не трогает блоки. Нужна отдельная кнопка «Сохранить блок» под самим блоком (см. предупреждение в разделе 5).</p>
+        </div>
+        <div class="faq-item">
+          <h4>Поправил хаб, сохранил блок правильной кнопкой — но на опубликованной странице всё равно старый текст</h4>
+          <p>Правка хаба сама не долетает до уже опубликованных детей. Нужно зайти в саму дочернюю страницу и что-то пересохранить, либо (для многих страниц разом) — «Комбинации» → выделить нужные → «Переопубликовать выбранные» (раздел 3.4).</p>
+        </div>
+        <div class="faq-item">
+          <h4>В чём разница между «Черновик» и «Noindex»?</h4>
+          <p>«Черновик» не виден на сайте вообще. «Noindex» виден по прямой ссылке, но поисковикам не показывается.</p>
+        </div>
+        <div class="faq-item">
+          <h4>Разница «Витрина офферов» и «МФО месяца»?</h4>
+          <p>«Витрина офферов» — список по правилу (вкладка «Выдача»), меняется автоматически. «МФО месяца» — фиксированный список, который вы выбираете руками.</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+</body>
+</html>
